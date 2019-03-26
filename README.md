@@ -1,10 +1,6 @@
 # mongodump-s3
 
-[![dockeri.co](http://dockeri.co/image/lgatica/mongodump-s3)](https://hub.docker.com/r/lgatica/mongodump-s3/)
-
-[![Build Status](https://travis-ci.org/lgaticaq/mongodump-s3.svg?branch=master)](https://travis-ci.org/lgaticaq/mongodump-s3)
-
-> Docker Image with Alpine Linux, mongodump and awscli for backup mongo database to s3
+> Docker Image with Alpine Linux, mongodump and awscli for backup mongo database to s3. Adapted to shards. Original from https://github.com/lgaticaq/mongodump-s3
 
 ## Use
 
@@ -14,12 +10,17 @@ Run every day at 2 am
 
 ```bash
 docker run -d --name mongodump \
-  -e "MONGO_URI=mongodb://user:pass@host:port/dbname"
+  -e "DB_NAME=meteor"
+  -e "SUPERUSER=meteor"
+  -e "SUPERUSER_PASSWORD=your_db_user_password"
+  -e "REPLICA_SET_NAME=MyCluster0-shard-0"
+  -e "C_SHARD_00=mycluster0-shard-00-00-abcde.mongodb.net"
+  -e "C_SHARD_01=mycluster0-shard-00-01-abcde.mongodb.net"
+  -e "C_SHARD_02=mycluster0-shard-00-02-abcde.mongodb.net"
   -e "AWS_ACCESS_KEY_ID=your_aws_access_key"
   -e "AWS_SECRET_ACCESS_KEY=your_aws_secret_access_key"
   -e "AWS_DEFAULT_REGION=us-west-1"
   -e "S3_BUCKET=your_aws_bucket"
-  -e "BACKUP_CRON_SCHEDULE=0 2 * * *"
   lgatica/mongodump-s3
 ```
 
@@ -27,7 +28,13 @@ Run every day at 2 am with full mongodb
 
 ```bash
 docker run -d --name mongodump \
-  -e "MONGO_URI=mongodb://user:pass@host:port/dbname"
+  -e "DB_NAME=meteor"
+  -e "SUPERUSER=meteor"
+  -e "SUPERUSER_PASSWORD=your_db_user_password"
+  -e "REPLICA_SET_NAME=MyCluster0-shard-0"
+  -e "C_SHARD_00=mycluster0-shard-00-00-abcde.mongodb.net"
+  -e "C_SHARD_01=mycluster0-shard-00-01-abcde.mongodb.net"
+  -e "C_SHARD_02=mycluster0-shard-00-02-abcde.mongodb.net"
   -e "AWS_ACCESS_KEY_ID=your_aws_access_key"
   -e "AWS_SECRET_ACCESS_KEY=your_aws_secret_access_key"
   -e "AWS_DEFAULT_REGION=us-west-1"
@@ -42,7 +49,13 @@ Run every day at 2 am with full mongodb and keep last 5 backups
 ```bash
 docker run -d --name mongodump \
   -v /tmp/backup:/backup
-  -e "MONGO_URI=mongodb://user:pass@host:port/dbname"
+  -e "DB_NAME=meteor"
+  -e "SUPERUSER=meteor"
+  -e "SUPERUSER_PASSWORD=your_db_user_password"
+  -e "REPLICA_SET_NAME=MyCluster0-shard-0"
+  -e "C_SHARD_00=mycluster0-shard-00-00-abcde.mongodb.net"
+  -e "C_SHARD_01=mycluster0-shard-00-01-abcde.mongodb.net"
+  -e "C_SHARD_02=mycluster0-shard-00-02-abcde.mongodb.net"
   -e "AWS_ACCESS_KEY_ID=your_aws_access_key"
   -e "AWS_SECRET_ACCESS_KEY=your_aws_secret_access_key"
   -e "AWS_DEFAULT_REGION=us-west-1"
@@ -57,7 +70,13 @@ docker run -d --name mongodump \
 
 ```bash
 docker run -d --name mongodump \
-  -e "MONGO_URI=mongodb://user:pass@host:port/dbname"
+  -e "DB_NAME=meteor"
+  -e "SUPERUSER=meteor"
+  -e "SUPERUSER_PASSWORD=your_db_user_password"
+  -e "REPLICA_SET_NAME=MyCluster0-shard-0"
+  -e "C_SHARD_00=mycluster0-shard-00-00-abcde.mongodb.net"
+  -e "C_SHARD_01=mycluster0-shard-00-01-abcde.mongodb.net"
+  -e "C_SHARD_02=mycluster0-shard-00-02-abcde.mongodb.net"
   -e "AWS_ACCESS_KEY_ID=your_aws_access_key"
   -e "AWS_SECRET_ACCESS_KEY=your_aws_secret_access_key"
   -e "AWS_DEFAULT_REGION=us-west-1"
@@ -67,7 +86,7 @@ docker run -d --name mongodump \
 
 ## IAM Policity
 
-You need to add a user with the following policies. Be sure to change `your_bucket` by the correct.
+You need to add a user with the following policies. Be sure to change `your_bucket` to the correct name.
 
 ```xml
 {
@@ -100,7 +119,9 @@ You need to add a user with the following policies. Be sure to change `your_buck
 
 ## Extra environmnet
 
-- `S3_PATH` - Default value is `mongodb`. Example `s3://your_bucket/mongodb`
+- `S3_PATH` - Default value is `backup`. Example `s3://your_bucket/backup`
+- `AUTH_DB` - Default value is `admin`.
+- `DB_PORT` - Default value is `27017`.
 - `MONGO_COMPLETE` - Default not set. If set doing backup full mongodb
 - `MAX_BACKUPS` - Default not set. If set doing it keeps the last n backups in /backup
 

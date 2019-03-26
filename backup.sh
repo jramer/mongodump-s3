@@ -1,10 +1,10 @@
 #!/usr/bin/env sh
 
-OPTIONS=`python /usr/local/bin/mongouri`
 BACKUP_NAME="$(date -u +%Y-%m-%d_%H-%M-%S)_UTC.gz"
 
 # Run backup
-mongodump ${OPTIONS} -o /backup/dump
+mongodump -d $DB_NAME -u $SUPERUSER -p "$SUPERUSER_PASSWORD" -o /backup/dump --authenticationDatabase $AUTH_DB --ssl --port $DB_PORT -h "$REPLICA_SET_NAME/$C_SHARD_00,$C_SHARD_01,$C_SHARD_02"
+
 # Compress backup
 cd /backup/ && tar -cvzf "${BACKUP_NAME}" dump
 # Upload backup
